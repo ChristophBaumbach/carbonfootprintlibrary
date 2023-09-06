@@ -3,6 +3,8 @@ import urllib.parse
 import CO2eTransportation as Transportation
 import json
 
+import moduleInspector
+
 
 ##todo
 #Doctor CO2Quickcheck
@@ -54,21 +56,29 @@ import json
     #     Kaufen nachhaltig ein
 
 class RequestHandler(BaseHTTPRequestHandler):
+    def __init__(self):
+        self.known_urls = ['/help', '/transport', '/medication', '/heating', '/electricity']
     def do_GET(self):
         if self.path == '/':
             self.send_response(200)
             self.send_header('Content-type', 'text/html')
             self.end_headers()
             self.wfile.write(b'Hello, this is the root page!')
-        elif self.path.startswith('/transport'):
+        elif any([self.path.startswith(known_url) for known_url in self.known_urls]):
             self.send_response(200)
             self.send_header('Content-type', 'application/json')
             self.end_headers()
             sub_path = self.path.split("/")[-1]
            # self.wfile.write(b'hi i am listening')
             query_params = urllib.parse.parse_qs(urllib.parse.urlparse(self.path).query)
-            result = Transportation.jsonResultForPathWithParams(sub_path, query_params)
+            result = moduleInspector.jsonResultForPathWithParams(sub_path, query_params)
             self.wfile.write(json.dumps(result).encode('utf-8'))
+            return
+        elif self.path.startswith("/medication"):
+            return
+        elif self.path.startswith("/heating"):
+            return
+        elif self.path.startswith(("/electricity")):
             return
         else:
             self.send_response(404)
